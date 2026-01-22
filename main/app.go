@@ -6,11 +6,11 @@ import (
 )
 
 func main() {
-	// title, content, err := getNoteDetails()
+	title, content, err := getNoteDetails()
 
-	// if(err != nil) {
-	// 	fmt.Println(err.Error());
-	// }
+	if(err != nil) {
+		fmt.Println(err.Error());
+	}
 }
 
 func getNoteDetails() (string, string, error) {
