@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strings"
 	"github.com/Vivek-Patel3/note-taker/internal/models"
 )
 
@@ -15,6 +18,10 @@ func main() {
 		return
 	}
 
+	userNote.Display()
+	userNote.Save()
+
+	fmt.Println("File saved successfully")
 }
 
 func getNoteDetails() (string, string) {
@@ -25,9 +32,19 @@ func getNoteDetails() (string, string) {
 }
 
 func getInputFromUser(prompt string) string {
-	fmt.Print(prompt)
-	var value string
-	fmt.Scan(&value)
+	fmt.Printf("%v ",prompt)
+	
+	reader := bufio.NewReader(os.Stdin)
 
-	return value
+	// now extract the string from reader
+	text, err := reader.ReadString('\n')
+
+	if(err != nil) {
+		return ""
+	}
+
+	text = strings.TrimSuffix(text, "\n")
+	text = strings.TrimSuffix(text, "\r")
+
+	return text
 }
