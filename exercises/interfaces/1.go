@@ -27,16 +27,3 @@ func PrintArea(s Shape) {
 	fmt.Println("Area of the shape:", s.Area())
 }
 
-func main() {
-	c := Circle{
-		r: 10,
-	}
-
-	r := Rectangle {
-		l: 5,
-		b: 10,
-	}
-
-	PrintArea(c)
-	PrintArea(r)
-}
