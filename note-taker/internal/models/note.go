@@ -20,15 +20,12 @@ type Note struct {
 func (note Note) Save() error {
 	fileName := strings.ReplaceAll(strings.ToLower(note.Title), " ", "_") + ".json"
 	
-	exePath, err := os.Executable()
-	if(err != nil) {
-		return err
+	dataDir := os.Getenv("NOTESAPP_DATA_DIR")
+	if dataDir == "" {
+		dataDir = "data" // relative to the current working directory
 	}
 
-	baseDir := filepath.Dir(exePath)
-	dataDir := filepath.Join(baseDir, "data")
-
-	err = os.MkdirAll(dataDir, 0755)
+	err := os.MkdirAll(dataDir, 0755)
 
 	if err != nil {
 		return err
