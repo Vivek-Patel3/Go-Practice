@@ -11,3 +11,5 @@ bin/
 # ========================
 # Keep go.work, but ignore backups
 go.work.sum
+
+data/
