@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-func main() {
+func reslicing() {
 	arr := [5]int{1, 2, 3, 4, 5}
 	s := arr[3:] // len = 2, cap = 2
 	s[0] = 10
