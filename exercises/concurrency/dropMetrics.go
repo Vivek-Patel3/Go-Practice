@@ -14,7 +14,7 @@ func Report(metrics chan<- string, metric string) bool {
 	}
 }
 
-func main() {
+func f2() {
 	metrics := make(chan string, 2)
 
 	
