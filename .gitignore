@@ -13,3 +13,5 @@ bin/
 go.work.sum
 
 data/
+
+r.go
