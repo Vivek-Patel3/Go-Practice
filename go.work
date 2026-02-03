@@ -1,7 +1,7 @@
-go 1.22.2
+go 1.25.6
 
 use (
+	./command-line
 	./exercises
 	./note-taker
-	./command-line
 )
