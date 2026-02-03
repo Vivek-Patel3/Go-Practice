@@ -1,3 +1,3 @@
 module github.com/Vivek-Patel3/cl-tool
 
-go 1.22.2
+go 1.25.6
