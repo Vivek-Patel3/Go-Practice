@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func main() {
+func callContext() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
