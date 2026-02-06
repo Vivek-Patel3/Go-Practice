@@ -4,4 +4,5 @@ use (
 	./command-line
 	./exercises
 	./note-taker
+	./exercises/http-basic
 )
