@@ -15,17 +15,10 @@ func main() {
 	srv := server.New()
 
 	handler.HandleFunc("/", srv.HandleIndex)
-	handler.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodGet:
-			srv.HandleUsers(w, r)
-		case http.MethodPost, http.MethodPut:
-			srv.HandleCreateUsers(w, r)
-		default:
-			w.WriteHeader(http.StatusMethodNotAllowed)
-		}
-	})
-
+	handler.HandleFunc("/user", srv.HandleReadUser)
+	handler.HandleFunc("/user/create", srv.HandleCreateUsers)
+	handler.HandleFunc("/users/all", srv.HandleUsers)
+	
 	s := &http.Server{
 		Addr: address,
 		Handler: handler,

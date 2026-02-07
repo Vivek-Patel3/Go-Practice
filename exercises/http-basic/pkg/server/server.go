@@ -12,9 +12,9 @@ type Server struct {
 }
 
 type user struct {
-	Name  string `json: name`
-	Email string `json: email`
-	Age   int    `json: age`
+	Name  string `json: "name"`
+	Email string `json: "email"`
+	Age   int    `json: "age"`
 }
 
 type userInfo struct {
@@ -37,6 +37,12 @@ var index = `
 `
 
 func (s *Server) HandleIndex(w http.ResponseWriter, r *http.Request) {
+	// since / is fallback path, we need to reject those endpoints which do not exist
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+
 	// nothing to read from the request
 	w.Header().Add("Content-Type", "text/html")
 	w.WriteHeader(http.StatusOK)
@@ -75,6 +81,8 @@ func (s *Server) HandleCreateUsers(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		defer r.Body.Close()
+
 		// unmarshal the body
 		var u user
 		err = json.Unmarshal(body, &u)
@@ -90,6 +98,43 @@ func (s *Server) HandleCreateUsers(w http.ResponseWriter, r *http.Request) {
 			email: u.Email,
 			age:   u.Age,
 		}
+
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+}
+
+// read user on the basis of name
+func (s *Server) HandleReadUser(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		// get the query parameters
+		name := r.URL.Query().Get("name") // now we have the map of query parameters and their values
+
+		// now find the name in the stored map
+		u, ok := s.users[name]
+		if !ok {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		// converting to DTO
+		result := user {
+			Name: name,
+			Age: u.age,
+			Email: u.email,
+		}
+
+		// now convert to JSON
+		msg, err := json.Marshal(result)
+		if err != nil {
+			log.Printf("Could not marshal request: %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Add("Content-Type", "application/json")
+		w.Write(msg)
 
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
