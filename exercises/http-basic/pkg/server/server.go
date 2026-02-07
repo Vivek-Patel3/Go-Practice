@@ -12,9 +12,9 @@ type Server struct {
 }
 
 type user struct {
-	Name  string `json: "name"`
-	Email string `json: "email"`
-	Age   int    `json: "age"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	Age   int    `json:"age"`
 }
 
 type userInfo struct {
@@ -44,13 +44,13 @@ func (s *Server) HandleIndex(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// nothing to read from the request
-	w.Header().Add("Content-Type", "text/html")
+	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(index))
 }
 
 func (s *Server) HandleUsers(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	res := make([]user, len(s.users))
 	i := 0
@@ -133,7 +133,7 @@ func (s *Server) HandleReadUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		w.Header().Add("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/json")
 		w.Write(msg)
 
 	default:
