@@ -15,7 +15,7 @@ func main() {
 	srv := server.New()
 
 	handler.HandleFunc("/", srv.HandleIndex) 
-	handler.HandleFunc("/users/{id}", srv.HandleReadUser)
+	handler.HandleFunc("GET /users/{id}", srv.HandleReadUser)
 	handler.HandleFunc("POST /users", srv.HandleCreateUsers)
 	handler.HandleFunc("GET /users", srv.HandleReadAllUsers)
 	

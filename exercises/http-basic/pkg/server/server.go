@@ -9,7 +9,7 @@ import (
 )
 
 type Server struct {
-	users map[string]userInfo
+	users map[string]user
 }
 
 type user struct {
@@ -18,14 +18,8 @@ type user struct {
 	Age   int    `json:"age"`
 }
 
-type userInfo struct {
-	name string
-	email string
-	age   int
-}
-
 func New() *Server {
-	return &Server{make(map[string]userInfo)}
+	return &Server{make(map[string]user)}
 }
 
 var index = `
@@ -57,7 +51,7 @@ func (s *Server) HandleReadAllUsers(w http.ResponseWriter, r *http.Request) {
 	res := make([]user, len(s.users))
 	i := 0
 	for _, v := range s.users {
-		res[i] = user{v.name, v.email, v.age}
+		res[i] = user{v.Name, v.Email, v.Age}
 		i++
 	}
 
@@ -96,10 +90,10 @@ func (s *Server) HandleCreateUsers(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Create user: %v", u.Name)
 	id := uuid.NewString()
 	
-	s.users[id] = userInfo{
-		name: u.Name,
-		email: u.Email,
-		age:   u.Age,
+	s.users[id] = user{
+		Name: u.Name,
+		Email: u.Email,
+		Age:   u.Age,
 	}
 
 	w.WriteHeader(http.StatusCreated) // 201
@@ -110,11 +104,15 @@ func (s *Server) HandleCreateUsers(w http.ResponseWriter, r *http.Request) {
 
 // read user on the basis of primary key (id)
 func (s *Server) HandleReadUser(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		// get the id of the user
-		
-	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
+	id := r.PathValue("id")
+
+	u, ok := s.users[id]
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(u); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
