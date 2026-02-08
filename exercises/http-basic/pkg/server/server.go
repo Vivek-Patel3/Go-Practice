@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"github.com/google/uuid"
 )
 
 type Server struct {
@@ -18,6 +19,7 @@ type user struct {
 }
 
 type userInfo struct {
+	name string
 	email string
 	age   int
 }
@@ -49,13 +51,13 @@ func (s *Server) HandleIndex(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(index))
 }
 
-func (s *Server) HandleUsers(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleReadAllUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	res := make([]user, len(s.users))
 	i := 0
-	for k, v := range s.users {
-		res[i] = user{k, v.email, v.age}
+	for _, v := range s.users {
+		res[i] = user{v.name, v.email, v.age}
 		i++
 	}
 
@@ -65,77 +67,53 @@ func (s *Server) HandleUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) HandleCreateUsers(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodPost, http.MethodPut:
-		// check the header of the request: validating content-type
-		if contentType := r.Header.Get("Content-Type"); contentType != "application/json" {
-			w.WriteHeader(http.StatusUnsupportedMediaType)
-			return
-		}
-
-		// now extract the body of the request
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			log.Printf("Could not read request body: %v", err)
-			w.WriteHeader(http.StatusInternalServerError) // HTTP 500
-			return
-		}
-
-		defer r.Body.Close()
-
-		// unmarshal the body
-		var u user
-		err = json.Unmarshal(body, &u)
-
-		if err != nil {
-			log.Printf("Could not unmarshal the request body: %v", err)
-			w.WriteHeader(http.StatusBadRequest) // HTTP 400
-			return
-		}
-
-		log.Printf("Create user: %v", u.Name)
-		s.users[u.Name] = userInfo{
-			email: u.Email,
-			age:   u.Age,
-		}
-
-	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
+	// check the header of the request: validating content-type
+	if contentType := r.Header.Get("Content-Type"); contentType != "application/json" {
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+		return
 	}
+
+	// now extract the body of the request
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Could not read request body: %v", err)
+		w.WriteHeader(http.StatusInternalServerError) // HTTP 500
+		return
+	}
+
+	defer r.Body.Close()
+
+	// unmarshal the body
+	var u user
+	err = json.Unmarshal(body, &u)
+
+	if err != nil {
+		log.Printf("Could not unmarshal the request body: %v", err)
+		w.WriteHeader(http.StatusBadRequest) // HTTP 400
+		return
+	}
+
+	log.Printf("Create user: %v", u.Name)
+	id := uuid.NewString()
+	
+	s.users[id] = userInfo{
+		name: u.Name,
+		email: u.Email,
+		age:   u.Age,
+	}
+
+	w.WriteHeader(http.StatusCreated) // 201
+	w.Header().Set("location", "/users/" + id)
+	w.Write([]byte(id))
+	
 }
 
-// read user on the basis of name
+// read user on the basis of primary key (id)
 func (s *Server) HandleReadUser(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		// get the query parameters
-		name := r.URL.Query().Get("name") // now we have the map of query parameters and their values
-
-		// now find the name in the stored map
-		u, ok := s.users[name]
-		if !ok {
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-
-		// converting to DTO
-		result := user {
-			Name: name,
-			Age: u.age,
-			Email: u.email,
-		}
-
-		// now convert to JSON
-		msg, err := json.Marshal(result)
-		if err != nil {
-			log.Printf("Could not marshal request: %v", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(msg)
-
+		// get the id of the user
+		
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}

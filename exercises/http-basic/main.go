@@ -14,10 +14,10 @@ func main() {
 
 	srv := server.New()
 
-	handler.HandleFunc("/", srv.HandleIndex)
-	handler.HandleFunc("/user", srv.HandleReadUser)
-	handler.HandleFunc("/user/create", srv.HandleCreateUsers)
-	handler.HandleFunc("/users/all", srv.HandleUsers)
+	handler.HandleFunc("/", srv.HandleIndex) 
+	handler.HandleFunc("/users/{id}", srv.HandleReadUser)
+	handler.HandleFunc("POST /users", srv.HandleCreateUsers)
+	handler.HandleFunc("GET /users", srv.HandleReadAllUsers)
 	
 	s := &http.Server{
 		Addr: address,
